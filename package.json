@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "test:code": "node --experimental-strip-types --test tests/frontend/highlight.test.mjs",
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
         "dev": "vp dev",
@@ -20,6 +21,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "concurrently": "^10.0.3",
+        "highlight.js": "^11.12.0",
         "laravel-vite-plugin": "^3.1",
         "reka-ui": "^2.11.0",
         "tailwind-merge": "^3.2.0",

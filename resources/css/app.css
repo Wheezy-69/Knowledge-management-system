@@ -1,6 +1,39 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@layer components {
+    .hljs {
+        @apply text-foreground;
+    }
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-literal {
+        @apply text-violet-700 dark:text-violet-300;
+    }
+    .hljs-string,
+    .hljs-attr {
+        @apply text-emerald-800 dark:text-emerald-300;
+    }
+    .hljs-number,
+    .hljs-symbol,
+    .hljs-built_in {
+        @apply text-amber-800 dark:text-amber-300;
+    }
+    .hljs-comment,
+    .hljs-quote {
+        @apply text-muted-foreground italic;
+    }
+    .hljs-title,
+    .hljs-section,
+    .hljs-type {
+        @apply text-blue-700 dark:text-blue-300;
+    }
+    .hljs-meta,
+    .hljs-variable {
+        @apply text-rose-700 dark:text-rose-300;
+    }
+}
+
 /* Keep system dark mode and support the starter's explicit .dark class. */
 @custom-variant dark {
     &:where(.dark, .dark *) {
