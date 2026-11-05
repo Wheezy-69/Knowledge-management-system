@@ -16,8 +16,15 @@ are source files owned by this project, rather than a global Vue plugin.
   `as-child` on shadcn buttons or sidebar menu buttons to compose them with links.
 
 Installed component families are Sidebar, Button, Card, Badge, Breadcrumb, and
-Empty. Sheet, Input, Separator, Skeleton, and Tooltip are registry dependencies
-of Sidebar. No CRUD controls or populated vault cards are implemented yet.
+Empty, Dialog, Label, and Textarea. Sheet, Input, Separator, Skeleton, and Tooltip
+support the sidebar and forms. CollectionDialog, ProblemDialog, AttemptDialog,
+and DeleteDialog implement CRUD interactions. CodeBlock uses highlight.js core
+with explicitly registered grammars; theme-compatible colors live in app.css.
+
+ThemeToggle cycles System, Light, and Dark using the existing VueUse dependency.
+Breadcrumbs follow the hierarchy, and ProblemList/PaginationLinks share search
+and navigation behavior. Breadcrumbs wrap below the header controls on mobile.
+See [the documentation index](README.md) for feature details.
 
 Add components only when needed, following the
 [official documentation](https://www.shadcn-vue.com/docs/installation/laravel):

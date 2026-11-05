@@ -17,9 +17,15 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { index } from '@/routes/vaults';
+import { index as problemIndex } from '@/routes/problems';
 
 const page = usePage();
-const vaultsActive = computed(() => page.url.split('?')[0] === index.url());
+const vaultsActive = computed(() =>
+    page.url.split('?')[0].startsWith(index.url()),
+);
+const problemsActive = computed(
+    () => page.url.split('?')[0] === problemIndex.url(),
+);
 const { isMobile, setOpenMobile } = useSidebar();
 </script>
 
@@ -58,6 +64,24 @@ const { isMobile, setOpenMobile } = useSidebar();
                     <SidebarGroupLabel>Workspace</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    as-child
+                                    :is-active="problemsActive"
+                                    size="lg"
+                                >
+                                    <Link
+                                        :href="problemIndex()"
+                                        :aria-current="
+                                            problemsActive ? 'page' : undefined
+                                        "
+                                        @click="setOpenMobile(false)"
+                                        ><LayoutGrid aria-hidden="true" /><span
+                                            >All problems</span
+                                        ></Link
+                                    >
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     as-child
