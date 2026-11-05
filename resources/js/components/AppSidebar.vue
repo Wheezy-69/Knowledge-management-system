@@ -1,68 +1,95 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
+import { LayoutGrid, X } from '@lucide/vue';
 import { computed } from 'vue';
+import { Button } from '@/components/ui/button';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
+} from '@/components/ui/sidebar';
 import { index } from '@/routes/vaults';
 
 const page = usePage();
 const vaultsActive = computed(() => page.url.split('?')[0] === index.url());
+const { isMobile, setOpenMobile } = useSidebar();
 </script>
 
 <template>
-    <aside
-        class="flex h-full flex-col gap-10 bg-stone-100 p-6 dark:bg-stone-900"
-    >
-        <Link
-            :href="index()"
-            class="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-600"
-        >
-            <span
-                class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-800 font-mono text-sm font-semibold text-white"
-                aria-hidden="true"
-                >&lt;/&gt;</span
+    <Sidebar collapsible="offcanvas">
+        <SidebarHeader class="p-6">
+            <Button
+                v-if="isMobile"
+                variant="ghost"
+                size="icon"
+                class="self-end"
+                @click="setOpenMobile(false)"
             >
-            <span class="text-lg font-semibold tracking-tight"
-                >Knowledge Vault</span
-            >
-        </Link>
-
-        <nav aria-label="Main navigation" class="flex flex-col gap-3">
-            <p
-                class="px-3 text-xs font-medium tracking-widest text-stone-500 uppercase dark:text-stone-400"
-            >
-                Workspace
-            </p>
+                <X aria-hidden="true" />
+                <span class="sr-only">Close menu</span>
+            </Button>
             <Link
                 :href="index()"
-                :aria-current="vaultsActive ? 'page' : undefined"
-                class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-emerald-600 dark:hover:bg-stone-800"
-                :class="{
-                    'bg-white shadow-xs dark:bg-stone-800': vaultsActive,
-                }"
+                class="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                @click="setOpenMobile(false)"
             >
-                <svg
-                    class="size-5 text-emerald-800 dark:text-emerald-400"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
+                <span
+                    class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary font-mono text-sm font-semibold text-sidebar-primary-foreground"
                     aria-hidden="true"
+                    >&lt;/&gt;</span
                 >
-                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                    <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                </svg>
-                Vaults
+                <span class="text-lg font-semibold tracking-tight"
+                    >Knowledge Vault</span
+                >
             </Link>
-        </nav>
+        </SidebarHeader>
 
-        <div
-            class="mt-auto flex flex-col gap-2 border-t border-stone-200 pt-5 dark:border-stone-800"
-        >
+        <SidebarContent class="px-4">
+            <nav aria-label="Main navigation">
+                <SidebarGroup>
+                    <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    as-child
+                                    :is-active="vaultsActive"
+                                    size="lg"
+                                >
+                                    <Link
+                                        :href="index()"
+                                        :aria-current="
+                                            vaultsActive ? 'page' : undefined
+                                        "
+                                        @click="setOpenMobile(false)"
+                                    >
+                                        <LayoutGrid
+                                            class="text-primary"
+                                            aria-hidden="true"
+                                        />
+                                        <span>Vaults</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </nav>
+        </SidebarContent>
+
+        <SidebarFooter class="gap-2 border-t p-6">
             <p class="text-sm font-medium">A little better, every attempt.</p>
-            <p class="text-xs leading-5 text-stone-500 dark:text-stone-400">
+            <p class="text-xs leading-5 text-muted-foreground">
                 Your personal library of lessons learned in code.
             </p>
-        </div>
-    </aside>
+        </SidebarFooter>
+    </Sidebar>
 </template>

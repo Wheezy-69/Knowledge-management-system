@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
+
 defineProps<{
     title: string;
     description: string;
@@ -6,21 +15,29 @@ defineProps<{
 </script>
 
 <template>
-    <div
-        class="flex flex-col items-center gap-5 rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center sm:py-24 dark:border-stone-700 dark:bg-stone-900"
-    >
-        <div
-            class="flex size-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
-            aria-hidden="true"
-        >
-            <slot name="icon" />
-        </div>
-        <div class="flex max-w-md flex-col gap-2">
-            <h2 class="text-xl font-semibold tracking-tight">{{ title }}</h2>
-            <p class="text-sm leading-6 text-stone-500 dark:text-stone-400">
-                {{ description }}
-            </p>
-        </div>
-        <slot />
-    </div>
+    <Empty class="gap-5 rounded-2xl border bg-card px-6 py-16 sm:py-24">
+        <EmptyHeader class="max-w-md gap-5">
+            <EmptyMedia
+                v-if="$slots.icon"
+                variant="icon"
+                class="size-16 rounded-2xl bg-primary/10 text-primary [&_svg:not([class*='size-'])]:size-8"
+                aria-hidden="true"
+            >
+                <slot name="icon" />
+            </EmptyMedia>
+            <div class="flex flex-col gap-2">
+                <EmptyTitle
+                    ><h2 class="text-xl font-semibold">
+                        {{ title }}
+                    </h2></EmptyTitle
+                >
+                <EmptyDescription class="text-sm leading-6">{{
+                    description
+                }}</EmptyDescription>
+            </div>
+        </EmptyHeader>
+        <EmptyContent v-if="$slots.default">
+            <slot />
+        </EmptyContent>
+    </Empty>
 </template>

@@ -1,25 +1,40 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { FolderCode } from '@lucide/vue';
 import EmptyState from '@/components/EmptyState.vue';
+import { Badge } from '@/components/ui/badge';
+import {
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+
+const organizationSteps = [
+    { name: 'Vaults', description: 'Collect a language or area of study.' },
+    { name: 'Sections', description: 'Group related topics together.' },
+    { name: 'Problems', description: 'Document what went wrong and why.' },
+    {
+        name: 'Attempts',
+        description: 'Keep each approach and what you learned.',
+    },
+];
 </script>
 
 <template>
     <Head title="Vaults" />
-
     <AppLayout title="Vaults">
         <div class="flex flex-col gap-3">
             <p
-                class="text-xs font-semibold tracking-widest text-emerald-800 uppercase dark:text-emerald-400"
+                class="text-xs font-semibold tracking-widest text-primary uppercase"
             >
                 Your coding knowledge, collected
             </p>
             <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
                 Vaults
             </h1>
-            <p
-                class="max-w-xl text-base leading-7 text-stone-500 dark:text-stone-400"
-            >
+            <p class="max-w-xl text-base leading-7 text-muted-foreground">
                 A home for your programming mistakes, discoveries, and the
                 solutions that finally clicked.
             </p>
@@ -27,43 +42,25 @@ import AppLayout from '@/layouts/AppLayout.vue';
 
         <section aria-label="Your vaults" class="flex flex-col gap-5">
             <div class="flex items-center justify-between gap-4">
-                <h2 class="text-sm font-medium">
-                    All vaults
-                    <span
-                        class="ml-2 rounded-md bg-stone-200 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-800 dark:text-stone-300"
-                        >0</span
-                    >
+                <h2 class="flex items-center gap-2 text-sm font-medium">
+                    All vaults <Badge variant="secondary">0</Badge>
                 </h2>
-                <span class="text-xs text-stone-500 dark:text-stone-400"
+                <span class="text-xs text-muted-foreground"
                     >Personal workspace</span
                 >
             </div>
-
             <EmptyState
                 title="Your knowledge starts here"
                 description="No vaults yet. Soon, you’ll be able to create collections for the languages, frameworks, and concepts you’re learning."
             >
                 <template #icon>
-                    <svg
-                        class="size-8"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"
-                        />
-                        <path d="m10 12-2 2 2 2m4-4 2 2-2 2" />
-                    </svg>
+                    <FolderCode class="size-8" />
                 </template>
-                <p
-                    class="rounded-full bg-stone-100 px-4 py-2 text-xs font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+                <Badge
+                    variant="secondary"
+                    class="max-w-full px-4 py-2 text-center whitespace-normal"
+                    >Vault creation is coming in a future phase</Badge
                 >
-                    Vault creation is coming in a future phase
-                </p>
             </EmptyState>
         </section>
 
@@ -75,39 +72,20 @@ import AppLayout from '@/layouts/AppLayout.vue';
                 From a mistake to a lesson learned
             </h2>
             <ol class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <li
-                    v-for="(step, i) in [
-                        {
-                            name: 'Vaults',
-                            description: 'Collect a language or area of study.',
-                        },
-                        {
-                            name: 'Sections',
-                            description: 'Group related topics together.',
-                        },
-                        {
-                            name: 'Problems',
-                            description: 'Document what went wrong and why.',
-                        },
-                        {
-                            name: 'Attempts',
-                            description:
-                                'Keep each approach and what you learned.',
-                        },
-                    ]"
-                    :key="step.name"
-                    class="flex flex-col gap-2 rounded-xl border border-stone-200 p-5 dark:border-stone-800"
-                >
-                    <span
-                        class="font-mono text-xs text-emerald-800 dark:text-emerald-400"
-                        >0{{ i + 1 }}</span
-                    >
-                    <h3 class="text-sm font-semibold">{{ step.name }}</h3>
-                    <p
-                        class="text-xs leading-5 text-stone-500 dark:text-stone-400"
-                    >
-                        {{ step.description }}
-                    </p>
+                <li v-for="(step, i) in organizationSteps" :key="step.name">
+                    <Card class="h-full gap-0 py-5 shadow-none">
+                        <CardHeader class="gap-2 px-5">
+                            <span class="font-mono text-xs text-primary"
+                                >0{{ i + 1 }}</span
+                            >
+                            <CardTitle class="text-sm">{{
+                                step.name
+                            }}</CardTitle>
+                            <CardDescription class="text-xs leading-5">{{
+                                step.description
+                            }}</CardDescription>
+                        </CardHeader>
+                    </Card>
                 </li>
             </ol>
         </section>
