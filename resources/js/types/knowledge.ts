@@ -20,18 +20,22 @@ export interface Attempt {
     notes: string | null;
     position: number;
 }
-export interface Problem {
+export interface ProblemSummary {
     id: number;
     section_id: number;
     title: string;
     description: string | null;
     programming_language: string;
     tags: string[] | null;
+    attempts_count?: number;
+    section?: Pick<Section, 'id' | 'vault_id' | 'name'> & {
+        vault?: Pick<Vault, 'id' | 'name'>;
+    };
+}
+export interface Problem extends ProblemSummary {
     corrected_solution: string | null;
     explanation: string | null;
-    attempts_count?: number;
     attempts?: Attempt[];
-    section?: Section;
 }
 export interface Paginated<T> {
     data: T[];

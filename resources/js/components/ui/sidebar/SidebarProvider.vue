@@ -3,7 +3,7 @@ import type { HTMLAttributes, Ref } from "vue"
 import { defaultDocument, useEventListener, useMediaQuery, useVModel } from "@vueuse/core"
 import { cn } from '@/lib/utils'
 import { TooltipProvider } from "reka-ui"
-import { computed, ref } from "vue"
+import { computed, onMounted, ref } from "vue"
 import { provideSidebarContext, SIDEBAR_COOKIE_MAX_AGE, SIDEBAR_COOKIE_NAME, SIDEBAR_KEYBOARD_SHORTCUT, SIDEBAR_MOBILE_BREAKPOINT, SIDEBAR_WIDTH, SIDEBAR_WIDTH_ICON } from "./utils"
 
 const props = withDefaults(defineProps<{
@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{
   open?: boolean
   class?: HTMLAttributes["class"]
 }>(), {
-  defaultOpen: !defaultDocument?.cookie.includes(`${SIDEBAR_COOKIE_NAME}=false`),
+  defaultOpen: undefined,
   open: undefined,
 })
 
@@ -19,13 +19,22 @@ const emits = defineEmits<{
   "update:open": [open: boolean]
 }>()
 
-const isMobile = useMediaQuery(`(max-width: ${SIDEBAR_MOBILE_BREAKPOINT - 1}px)`)
+const isMobile = useMediaQuery(`(max-width: ${SIDEBAR_MOBILE_BREAKPOINT - 1}px)`, {
+  ssrWidth: SIDEBAR_MOBILE_BREAKPOINT,
+})
 const openMobile = ref(false)
 
 const open = useVModel(props, "open", emits, {
-  defaultValue: props.defaultOpen ?? false,
+  defaultValue: props.defaultOpen ?? true,
   passive: (props.open === undefined) as false,
 }) as Ref<boolean>
+
+// Match server markup first; browser-only preferences are restored after hydration.
+onMounted(() => {
+  if (props.open === undefined && props.defaultOpen === undefined) {
+    open.value = !defaultDocument?.cookie.includes(`${SIDEBAR_COOKIE_NAME}=false`)
+  }
+})
 
 function setOpen(value: boolean) {
   open.value = value // emits('update:open', value)

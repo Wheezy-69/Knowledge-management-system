@@ -64,6 +64,25 @@ test('invalid search is rejected', function () {
     $this->from(route('problems.index'))->get(route('problems.index', ['search' => ['not a string']]))->assertSessionHasErrors('search');
 });
 
+test('problem listings omit large detail fields while the detail page retains them', function (bool $global) {
+    $problem = Problem::factory()->create([
+        'corrected_solution' => str_repeat('code ', 20000),
+        'explanation' => str_repeat('why ', 12500),
+    ]);
+    $section = $problem->section;
+    $url = $global ? route('problems.index') : route('vaults.sections.show', [$section->vault, $section]);
+
+    $this->get($url)->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->where('problems.data.0.id', $problem->id)
+        ->where('problems.data.0.attempts_count', 0)
+        ->missing('problems.data.0.corrected_solution')
+        ->missing('problems.data.0.explanation'));
+    $this->get(route('vaults.sections.problems.show', [$section->vault, $section, $problem]))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('problem.corrected_solution', $problem->corrected_solution)
+            ->where('problem.explanation', $problem->explanation));
+})->with(['global' => true, 'section' => false]);
+
 test('search pagination preserves the filter and result boundary', function () {
     Problem::factory()->count(16)->create(['title' => 'Matching lesson']);
     Problem::factory()->create(['title' => 'Something else']);

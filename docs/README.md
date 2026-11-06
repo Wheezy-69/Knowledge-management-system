@@ -18,6 +18,7 @@ A problem also has a corrected solution, an explanation, a language, and tags.
 - [Programming concepts and rebuilding](learning/concepts.md)
 - [TypeScript concepts with project examples](learning/typescript.md)
 - [UI components and theming](ui.md)
+- [Performance findings and measurement](performance.md)
 
 ## Run locally
 

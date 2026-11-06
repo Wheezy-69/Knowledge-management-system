@@ -20,6 +20,7 @@ defineProps<{
     <Card class="overflow-hidden py-0 transition-shadow hover:shadow-md">
         <Link
             :href="href"
+            prefetch
             class="flex flex-1 flex-col rounded-t-xl focus-visible:outline-2 focus-visible:outline-ring"
         >
             <img

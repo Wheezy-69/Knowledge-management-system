@@ -8,11 +8,16 @@ import ProblemList from '@/components/ProblemList.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index, show as vaultShow } from '@/routes/vaults';
 import { show, destroy } from '@/routes/vaults/sections';
-import type { Vault, Section, Problem, Paginated } from '@/types/knowledge';
+import type {
+    Vault,
+    Section,
+    ProblemSummary,
+    Paginated,
+} from '@/types/knowledge';
 defineProps<{
     vault: Vault;
     section: Section;
-    problems: Paginated<Problem>;
+    problems: Paginated<ProblemSummary>;
     filters: { search: string };
 }>();
 </script>

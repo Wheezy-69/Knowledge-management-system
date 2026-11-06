@@ -17,6 +17,12 @@ Routes are in `routes/web.php`; all four tables are in the knowledge-vault migra
 
 ## 4. Controller, model, and database
 
+List queries select only summary fields and omit corrected_solution/explanation;
+those potentially large fields remain available on the detail page and in its
+edit dialog. Global results load only section/vault IDs and names for navigation.
+The frontend distinguishes `ProblemSummary` from `Problem` accordingly.
+Problem links prefetch on hover so a likely next page can load before the click.
+
 Problems are created with `$section->problems()` and updated with validated fields. Tags cast between a PHP array and a JSON database column. Section search starts from its relationship and groups title/description OR conditions. Global search eager-loads section.vault and attempt counts. Both lists sort by updated_at and paginate at 15 results. The detail action loads attempts in position order. Deleting a problem cascades only its attempts.
 
 ## 5. Validation and errors
@@ -24,6 +30,9 @@ Problems are created with `$section->problems()` and updated with validated fiel
 Title is required (200), language required (40), description/explanation optional (50,000 each), corrected solution optional (100,000). Tags are optional, limited to 12 distinct case-insensitive strings of at most 40 characters. Tags have inline error feedback including indexed errors. Search must be a string up to 200 characters. Nested binding rejects wrong section IDs. Code fields bypass trimming, preserving indentation.
 
 ## 6. Testing
+
+Regression tests cover both list endpoints omitting large solution/explanation
+fields while the detail page retains them.
 
 `tests/Feature/ProblemCrudTest.php` covers persisted fields, code whitespace, updates, tag and length validation, case-insensitive title/description search, section isolation, global ancestry data, SQL-like input, wrong parents, immutable section_id, and cascade deletion. `tests/frontend/highlight.test.mjs` checks code escaping and language fallback. Run `php artisan test --filter=ProblemCrud` and the frontend test command in the overview.
 

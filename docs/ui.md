@@ -22,6 +22,9 @@ and DeleteDialog implement CRUD interactions. CodeBlock uses highlight.js core
 with explicitly registered grammars; theme-compatible colors live in app.css.
 
 ThemeToggle cycles System, Light, and Dark using the existing VueUse dependency.
+Its label stays System until mounted, then reflects the browser preference, so
+the initial client markup matches SSR. SidebarProvider similarly restores its
+cookie after mounting and uses a shared SSR media-query width during hydration.
 Breadcrumbs follow the hierarchy, and ProblemList/PaginationLinks share search
 and navigation behavior. Breadcrumbs wrap below the header controls on mobile.
 See [the documentation index](README.md) for feature details.

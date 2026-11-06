@@ -20,7 +20,9 @@ class ProblemController extends Controller
 
         return Inertia::render('problems/Index', [
             'filters' => ['search' => $search],
-            'problems' => Problem::query()->with('section.vault')->withCount('attempts')
+            'problems' => Problem::query()
+                ->select(['id', 'section_id', 'title', 'description', 'programming_language', 'tags', 'updated_at'])
+                ->with(['section:id,vault_id,name', 'section.vault:id,name'])->withCount('attempts')
                 ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                     ->whereLike('title', '%'.$search.'%')->orWhereLike('description', '%'.$search.'%')))
                 ->latest('updated_at')->paginate(15)->withQueryString(),
