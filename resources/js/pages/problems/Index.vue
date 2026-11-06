@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { index } from '@/routes/problems';
 import { index as vaultIndex } from '@/routes/vaults';
-import type { Problem, Paginated } from '@/types/knowledge';
-defineProps<{ problems: Paginated<Problem>; filters: { search: string } }>();
+import type { ProblemSummary, Paginated } from '@/types/knowledge';
+defineProps<{
+    problems: Paginated<ProblemSummary>;
+    filters: { search: string };
+}>();
 </script>
 <template>
     <Head title="All problems" />

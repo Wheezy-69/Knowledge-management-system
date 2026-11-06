@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useColorMode } from '@vueuse/core';
+import { useColorMode, useMounted } from '@vueuse/core';
 import { Button } from '@/components/ui/button';
 const mode = useColorMode({ storageKey: 'knowledge-vault-theme' });
 const selected = mode.store;
+const mounted = useMounted();
 function cycle() {
     selected.value =
         selected.value === 'auto'
@@ -16,7 +17,7 @@ function cycle() {
     <Button variant="outline" size="sm" @click="cycle"
         >Theme:
         {{
-            selected === 'auto'
+            !mounted || selected === 'auto'
                 ? 'System'
                 : selected === 'dark'
                   ? 'Dark'

@@ -44,6 +44,7 @@ const { isMobile, setOpenMobile } = useSidebar();
             </Button>
             <Link
                 :href="index()"
+                prefetch
                 class="flex items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                 @click="setOpenMobile(false)"
             >
@@ -72,6 +73,7 @@ const { isMobile, setOpenMobile } = useSidebar();
                                 >
                                     <Link
                                         :href="problemIndex()"
+                                        prefetch
                                         :aria-current="
                                             problemsActive ? 'page' : undefined
                                         "
@@ -90,6 +92,7 @@ const { isMobile, setOpenMobile } = useSidebar();
                                 >
                                     <Link
                                         :href="index()"
+                                        prefetch
                                         :aria-current="
                                             vaultsActive ? 'page' : undefined
                                         "

@@ -28,7 +28,9 @@ class SectionController extends Controller
             'vault' => $vault,
             'section' => $section,
             'filters' => ['search' => $search],
-            'problems' => $section->problems()->withCount('attempts')
+            'problems' => $section->problems()
+                ->select(['id', 'section_id', 'title', 'description', 'programming_language', 'tags', 'updated_at'])
+                ->withCount('attempts')
                 ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
                     ->whereLike('title', '%'.$search.'%')->orWhereLike('description', '%'.$search.'%')))
                 ->latest('updated_at')->paginate(15)->withQueryString(),

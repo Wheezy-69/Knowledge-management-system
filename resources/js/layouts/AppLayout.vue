@@ -48,6 +48,7 @@ const page = usePage<{ flash: { success?: string } }>();
                                 <BreadcrumbLink v-if="crumb.href" as-child
                                     ><Link
                                         :href="crumb.href"
+                                        prefetch
                                         class="max-w-40 truncate"
                                         >{{ crumb.label }}</Link
                                     ></BreadcrumbLink

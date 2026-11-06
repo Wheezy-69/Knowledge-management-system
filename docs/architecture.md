@@ -17,6 +17,13 @@ container abstraction. The database is the source of truth. Inertia supplies eac
 page with server-side props. Records are paginated; counts and global-search
 relationships are loaded with Eloquent to avoid per-record queries.
 
+Problem lists select summary fields rather than loading corrected solutions and
+explanations. The frontend uses `ProblemSummary` for these responses and `Problem`
+for detail pages. Global results load only the IDs/names needed for ancestry.
+Primary navigation links prefetch on hover using Inertia's existing cache.
+The app bootstrap clears that cache after mutations finish to keep lists fresh.
+See [performance notes](performance.md) for measurements and limitations.
+
 ## Example: saving an attempt
 
 1. The problem page opens `AttemptDialog.vue`, which initializes `useForm`.

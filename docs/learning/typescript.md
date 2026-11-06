@@ -91,6 +91,23 @@ We use interfaces so pages and reusable components agree on what a Vault,
 Section, Problem, or Attempt looks like. A misspelling such as
 `vault.sectionsCount` is caught because the real field is `sections_count`.
 
+The current detail interface also reuses its list shape:
+
+```ts
+export interface Problem extends ProblemSummary {
+    corrected_solution: string | null;
+    explanation: string | null;
+    attempts?: Attempt[];
+}
+```
+
+`extends` means “include the fields of ProblemSummary, plus these fields.”
+Lists omit the large solution and explanation fields, so their components accept
+ProblemSummary. The problem detail and edit dialog accept the full Problem.
+This avoids promising that a list response contains fields it deliberately skips.
+In JavaScript there is no interface inheritance here: the actual detail object
+simply contains more properties than the summary object.
+
 ## 3. Optional properties, nullable values, unions, and arrays
 
 These excerpts are all from [types/knowledge.ts](../../resources/js/types/knowledge.ts):
@@ -100,10 +117,12 @@ These excerpts are all from [types/knowledge.ts](../../resources/js/types/knowle
 description: string | null;
 sections_count?: number;
 
-// Problem
+// ProblemSummary
 tags: string[] | null;
+// Problem
 attempts?: Attempt[];
-section?: Section;
+// Section
+vault?: Vault;
 ```
 
 The `|` character means “or,” and creates a **union type**:
@@ -114,7 +133,7 @@ The `|` character means “or,” and creates a **union type**:
 | `sections_count?: number`     | The field may be omitted; reading it may produce undefined.                          |
 | `tags: string[] \| null`      | The field contains a list of strings or null.                                        |
 | `attempts?: Attempt[]`        | The field may be omitted; when present it contains a list of Attempt objects.        |
-| `section?: Section`           | An optional nested object shaped like Section.                                       |
+| `vault?: Vault`               | An optional nested object shaped like Vault.                                         |
 
 The distinction reflects actual page responses. Vault listings include section
 counts; a detail response does not have to. The problem detail loads attempts;
@@ -268,7 +287,7 @@ A paginated response always has data, a total, and navigation links.
 The item type is the part that changes:
 
 - `Paginated<Vault>` means `data` is a Vault array.
-- `Paginated<Problem>` means `data` is a Problem array.
+- `Paginated<ProblemSummary>` means `data` contains the smaller list records.
 
 From [pages/vaults/Index.vue](../../resources/js/pages/vaults/Index.vue):
 
@@ -428,7 +447,7 @@ if the handler were reused elsewhere, it would need a real runtime check.
 From [ProblemList.vue](../../resources/js/components/ProblemList.vue):
 
 ```ts
-function href(problem: Problem) {
+function href(problem: ProblemSummary) {
     const section = problem.section ?? props.section;
     const vault = section?.vault ?? props.vault;
     return section && vault
@@ -505,6 +524,24 @@ It loses the checking of each link's URL, label, and active state.
 
 The same indexed-access idea appears in generated shadcn-vue props as
 `HTMLAttributes["class"]`, reusing Vue's accepted class-binding type.
+
+### Pick and intersection types
+
+The actual ancestry field in `types/knowledge.ts` is now deliberately smaller:
+
+```ts
+section?: Pick<Section, 'id' | 'vault_id' | 'name'> & {
+    vault?: Pick<Vault, 'id' | 'name'>;
+};
+```
+
+`Pick` is a built-in TypeScript utility: choose only the named properties from
+another type. `&` combines both object descriptions, so this field has the chosen
+section fields and may also contain a minimal vault. This matches the IDs/names
+that Laravel actually sends for global search, without claiming it sends full
+section/vault descriptions or covers. Vue renders the names and Wayfinder uses
+the IDs. These type expressions disappear in JavaScript; the nested data objects
+remain unchanged.
 
 ## 14. Typed Vue events and v-model
 

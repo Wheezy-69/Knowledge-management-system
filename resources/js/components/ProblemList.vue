@@ -14,10 +14,15 @@ import {
 } from '@/components/ui/card';
 import { index } from '@/routes/problems';
 import { show } from '@/routes/vaults/sections/problems';
-import type { Problem, Vault, Section, Paginated } from '@/types/knowledge';
+import type {
+    ProblemSummary,
+    Vault,
+    Section,
+    Paginated,
+} from '@/types/knowledge';
 
 const props = defineProps<{
-    problems: Paginated<Problem>;
+    problems: Paginated<ProblemSummary>;
     search: string;
     action: string;
     vault?: Vault;
@@ -38,7 +43,7 @@ function submit() {
         only: ['problems', 'filters'],
     });
 }
-function href(problem: Problem) {
+function href(problem: ProblemSummary) {
     const section = problem.section ?? props.section;
     const vault = section?.vault ?? props.vault;
     return section && vault
@@ -106,6 +111,7 @@ function href(problem: Problem) {
             >
                 <Link
                     :href="href(problem)"
+                    prefetch
                     class="rounded-xl focus-visible:outline-2 focus-visible:outline-ring"
                 >
                     <CardHeader class="gap-3 py-5">
