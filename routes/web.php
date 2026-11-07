@@ -4,6 +4,7 @@ use App\Http\Controllers\AttemptController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\ContentBlockController;
+use App\Http\Controllers\GraphController;
 use App\Http\Controllers\ProblemController;
 use App\Http\Controllers\RelatedProblemController;
 use App\Http\Controllers\SectionController;
@@ -18,6 +19,7 @@ Route::resource('tags', TagController::class)->only(['index', 'store', 'update',
 Route::get('backups', [BackupController::class, 'index'])->name('backups.index');
 Route::get('backups/export', [BackupController::class, 'export'])->name('backups.export');
 Route::post('backups', [BackupController::class, 'store'])->name('backups.store');
+Route::get('graph', [GraphController::class, 'index'])->name('graph.index');
 
 Route::scopeBindings()->group(function (): void {
     Route::get('vaults/{vault}/sections/{section}/problems/{problem}/compare', [ComparisonController::class, 'show'])->name('vaults.sections.problems.compare');
