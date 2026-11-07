@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AttemptController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ProblemController;
 use App\Http\Controllers\RelatedProblemController;
 use App\Http\Controllers\SectionController;
@@ -12,6 +13,9 @@ Route::inertia('/', 'Welcome')->name('home');
 
 Route::get('/problems', [ProblemController::class, 'index'])->name('problems.index');
 Route::resource('tags', TagController::class)->only(['index', 'store', 'update', 'destroy']);
+Route::get('backups', [BackupController::class, 'index'])->name('backups.index');
+Route::get('backups/export', [BackupController::class, 'export'])->name('backups.export');
+Route::post('backups', [BackupController::class, 'store'])->name('backups.store');
 
 Route::scopeBindings()->group(function (): void {
     Route::post('vaults/{vault}/sections/{section}/problems/{problem}/related', [RelatedProblemController::class, 'store'])->name('vaults.sections.problems.related.store');
