@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "test:code": "node --experimental-strip-types --test tests/frontend/highlight.test.mjs",
+        "test:code": "node --experimental-strip-types --test tests/frontend/*.test.mjs",
         "build": "vp build",
         "build:ssr": "vp build && vp build --ssr",
         "dev": "vp dev",

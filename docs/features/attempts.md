@@ -39,3 +39,9 @@ Order numbers are stable and may contain gaps; deleting does not renumber histor
 4. Save through the parent relationship and preserve source whitespace in middleware.
 5. Build a dedicated attempt dialog and display each record separately from the solution.
 6. Test collisions, wrong parents, ordering, editing, and deletion before adding UI polish.
+
+## Related expansion features
+
+Attempts can be compared with other attempts, code blocks, or the corrected
+solution using Compare code. Copying and wrapping affect presentation only;
+see [snippet presentation](snippets.md) and [comparison](comparison.md).

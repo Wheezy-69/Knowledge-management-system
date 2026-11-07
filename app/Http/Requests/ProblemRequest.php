@@ -6,6 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ProblemRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (is_array($this->input('tags'))) {
+            $this->merge(['tags' => array_map(fn ($tag) => is_string($tag) ? trim(preg_replace('/\s+/u', ' ', $tag) ?? $tag) : $tag, $this->input('tags'))]);
+        }
+    }
+
     /** This MVP is intentionally a single-user local workspace. */
     public function authorize(): bool
     {

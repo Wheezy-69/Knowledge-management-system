@@ -13,7 +13,8 @@ Routes are in `routes/web.php`; all four tables are in the knowledge-vault migra
 
 ## 3. Frontend communication
 
-`ProblemDialog` submits via `@/routes/vaults/sections/problems`. Tags are entered as comma-separated text and sent as a trimmed array. Search uses an explicit Search button and an Inertia GET with `search`, preserving page state and requesting only problems/filters. Clear resets the filter. Generated server pagination links retain the query string. The global list links each result to its nested detail URL.
+`ProblemDialog` submits via `@/routes/vaults/sections/problems`. Tags are entered as comma-separated text and sent as a trimmed array. SearchFiltersForm uses an explicit Search button and an Inertia GET with the
+term and combined filters, preserving page state. Clear resets all filters. Generated server pagination links retain the query string. The global list links each result to its nested detail URL.
 
 ## 4. Controller, model, and database
 
@@ -23,7 +24,10 @@ edit dialog. Global results load only section/vault IDs and names for navigation
 The frontend distinguishes `ProblemSummary` from `Problem` accordingly.
 Problem links prefetch on hover so a likely next page can load before the click.
 
-Problems are created with `$section->problems()` and updated with validated fields. Tags cast between a PHP array and a JSON database column. Section search starts from its relationship and groups title/description OR conditions. Global search eager-loads section.vault and attempt counts. Both lists sort by updated_at and paginate at 15 results. The detail action loads attempts in position order. Deleting a problem cascades only its attempts.
+Problems are created with `$section->problems()` and updated with validated fields. Tags cast between a PHP array and a JSON database column. Section search starts from its bound section and groups OR conditions across
+titles, descriptions, solutions, explanations, attempts/notes, and blocks. Global search eager-loads section.vault and attempt counts. ProblemSearch validates
+and applies vault, section, language, and all-selected-tag filters. Small previews
+identify matching fields without sending full stored code. Both lists sort by updated_at and paginate at 15 results. The detail action loads attempts in position order. Deleting a problem cascades only its attempts.
 
 ## 5. Validation and errors
 
@@ -38,7 +42,9 @@ fields while the detail page retains them.
 
 ## 7. Implementation decisions
 
-Descriptions and explanation are escaped plain text. Corrected solution has a separate visual reference panel and database field; attempts never overwrite it. Tags are inline JSON rather than a separate taxonomy. Search uses bound LIKE values, so percent/underscore retain wildcard meaning. Unknown languages render as plaintext. There is no tag-filter UI or rich Markdown editor.
+Descriptions and explanation are escaped plain text. Corrected solution has a separate visual reference panel and database field; attempts never overwrite it. Tags keep their JSON compatibility copy alongside a normalized reusable catalog.
+See [tags](tags.md) and [expanded search](search.md). Search uses bound LIKE values, so percent/underscore retain wildcard meaning. Unknown languages render as plaintext. Combined tag filters and a simple text/code block editor are available.
+Descriptions/explanations still do not render Markdown or raw HTML.
 
 ## 8. Rebuild it independently
 

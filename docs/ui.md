@@ -38,3 +38,15 @@ npx shadcn-vue@latest add <component>
 
 Review generated changes and dependencies, retain the existing `cn` helper, and
 run `npm run types:check`, `npm run check`, and `npm run build`.
+
+## Expansion UI
+
+SearchFiltersForm centralizes term, parent, language, and all-tag filters.
+TagDialog manages reusable names. ContentBlockDialog adds ordered text/code
+blocks without changing the legacy editor. RelatedProblems uses scoped links and
+explicit unlink confirmation. The Compare page renders safe side-by-side text;
+CodeBlock adds visual wrapping and selects source for manual copying when the
+Clipboard API is unavailable. Graph has deterministic SVG nodes and a text-link
+alternative. Backup downloads use a normal anchor; restore uses a confirmed
+Inertia file form. Native selects/checkboxes complement existing shadcn primitives
+without adding a second UI library. AI generation has no inactive/fake button.

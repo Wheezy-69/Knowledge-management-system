@@ -87,3 +87,19 @@ replacement tests and consider cleanup jobs only if usage later justifies them.
 10. Run the checks and update the feature docs from the behavior you observe.
 
 Follow the individual feature documents for exact source files and smaller steps.
+
+## Additional concepts from the expansion
+
+- Many-to-many relationships: normalized tags and problem_tag preserve reusable
+  identities while JSON labels remain a compatibility copy.
+- Canonical pairs: related links store the smaller ID first to prevent a reversed
+  duplicate of an undirected relationship.
+- Database transactions plus file cleanup: a portable import rolls back rows and
+  removes only its newly generated paths if an attachment write fails.
+- Portable formats: checksums detect corruption, while schema/reference validation
+  handles malformed data. A checksum is not an authenticity signature.
+- Non-destructive evolution: source-marked blocks copy original content and leave
+  old fields intact. Numeric ordering and unique indexes protect block order.
+- Bounded algorithms: line comparison caps matrix size; graphs cap displayed nodes.
+- Derived views: graph nodes/edges come from existing relationships, not a parallel
+  graph database. Text interpolation avoids turning diff/source strings into HTML.

@@ -31,8 +31,10 @@ same number. Position gaps are retained after deletion or reordering. To swap tw
 positions, move one to a temporarily unused positive number first.
 
 SQLite's foreign-key enforcement is enabled by the existing database config.
-Only the problem tags need an Eloquent array cast. Tags are stored inline as JSON
-because there is no tag-management or tag-filter feature in this MVP.
+Problem tags retain an Eloquent array cast. The expansion adds a normalized
+catalog and pivot while keeping the original JSON column for compatibility.
+Controllers use ProblemTags to synchronize both representations.
+The backfill preserves existing JSON labels and all vault/section associations.
 
 ## Validation and persistence
 
@@ -56,3 +58,26 @@ schema changes. Do not use `migrate:fresh` on real notebook data.
 
 Back up the SQLite file and private cover directory together. Factory classes are
 for testing; the MVP does not seed sample data into the local notebook.
+
+## Additive expansion schema
+
+Migration `2026_11_06_122221_add_tags_links_and_content_blocks.php` adds:
+
+| Table          | Fields and constraints                                                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| tags           | id, name/key (40), timestamps; normalized key unique                                                                                |
+| problem_tag    | problem_id, tag_id; composite primary key and reverse lookup index                                                                  |
+| problem_links  | problem_id, related_problem_id; canonical smaller-ID-first pair; primary and reverse index                                          |
+| content_blocks | id, problem_id, type, content, nullable language, position, nullable source, timestamps; unique problem/position and problem/source |
+
+All new foreign keys cascade only their dependent rows. Removing a tag preserves
+problems; removing a problem removes its assignments, links, and blocks. The old
+problem columns and attempts are retained. Null block sources permit arbitrary
+manual blocks; non-null legacy sources prevent duplicate conversion copies.
+Rollback of this migration drops only the added tables but loses their new data;
+it does not erase original problem content or JSON tags. Do not roll back real
+content without a verified backup.
+
+Tag/reverse-link indexes match actual relationship lookup patterns. No ordinary
+text index was added for leading-wildcard LIKE search. Search previews are bounded
+and detail fields are excluded from serialized list responses.

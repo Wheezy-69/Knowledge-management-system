@@ -3,35 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProblemRequest;
+use App\Http\Requests\ProblemSearchRequest;
 use App\Models\Problem;
 use App\Models\Section;
 use App\Models\Vault;
+use App\Services\ProblemSearch;
+use App\Services\ProblemTags;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProblemController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(ProblemSearchRequest $request, ProblemSearch $search): Response
     {
-        $filters = $request->validate(['search' => ['nullable', 'string', 'max:200']]);
-        $search = trim($filters['search'] ?? '');
+        $filters = $search->filters($request->validated());
+        $filters['search'] = trim($filters['search'] ?? '');
 
         return Inertia::render('problems/Index', [
-            'filters' => ['search' => $search],
-            'problems' => Problem::query()
-                ->select(['id', 'section_id', 'title', 'description', 'programming_language', 'tags', 'updated_at'])
-                ->with(['section:id,vault_id,name', 'section.vault:id,name'])->withCount('attempts')
-                ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
-                    ->whereLike('title', '%'.$search.'%')->orWhereLike('description', '%'.$search.'%')))
-                ->latest('updated_at')->paginate(15)->withQueryString(),
+            'filters' => $filters, 'filterOptions' => $search->options(),
+            'problems' => $search->results(Problem::query(), $filters),
         ]);
     }
 
     public function store(ProblemRequest $request, Vault $vault, Section $section): RedirectResponse
     {
-        $problem = $section->problems()->create($request->validated());
+        $problem = DB::transaction(function () use ($section, $request): Problem {
+            $problem = $section->problems()->create($request->validated());
+            app(ProblemTags::class)->sync($problem, $request->validated('tags') ?? []);
+
+            return $problem;
+        });
 
         return to_route('vaults.sections.problems.show', [$vault, $section, $problem])->with('success', 'Problem created.');
     }
@@ -41,13 +44,21 @@ class ProblemController extends Controller
         return Inertia::render('problems/Show', [
             'vault' => $vault,
             'section' => $section,
-            'problem' => $problem->load('attempts'),
+            'problem' => $problem->load(['attempts', 'blocks']),
+            'related' => Problem::query()->whereIn('id', DB::table('problem_links')
+                ->where('problem_id', $problem->id)->orWhere('related_problem_id', $problem->id)
+                ->get()->flatMap(fn ($link) => [$link->problem_id, $link->related_problem_id]))
+                ->whereKeyNot($problem->id)->with(['section:id,vault_id,name', 'section.vault:id,name'])->get(['id', 'section_id', 'title']),
+            'linkCandidates' => Problem::query()->whereKeyNot($problem->id)->latest()->limit(500)->get(['id', 'title']),
         ]);
     }
 
     public function update(ProblemRequest $request, Vault $vault, Section $section, Problem $problem): RedirectResponse
     {
-        $problem->update($request->validated());
+        DB::transaction(function () use ($problem, $request): void {
+            $problem->update($request->validated());
+            app(ProblemTags::class)->sync($problem, $request->validated('tags') ?? []);
+        });
 
         return back()->with('success', 'Problem updated.');
     }

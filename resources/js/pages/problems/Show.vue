@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import ContentBlockDialog from '@/components/ContentBlockDialog.vue';
+import RelatedProblems from '@/components/RelatedProblems.vue';
+import { Button } from '@/components/ui/button';
+import {
+    convert,
+    destroy as blockDestroy,
+} from '@/routes/vaults/sections/problems/blocks';
+import { compare } from '@/routes/vaults/sections/problems';
 import AttemptDialog from '@/components/AttemptDialog.vue';
 import CodeBlock from '@/components/CodeBlock.vue';
 import DeleteDialog from '@/components/DeleteDialog.vue';
@@ -13,8 +21,20 @@ import { index, show as vaultShow } from '@/routes/vaults';
 import { show as sectionShow } from '@/routes/vaults/sections';
 import { destroy } from '@/routes/vaults/sections/problems';
 import { destroy as attemptDestroy } from '@/routes/vaults/sections/problems/attempts';
-import type { Problem, Vault, Section } from '@/types/knowledge';
-defineProps<{ vault: Vault; section: Section; problem: Problem }>();
+import type {
+    Problem,
+    Vault,
+    Section,
+    RelatedProblem,
+} from '@/types/knowledge';
+defineProps<{
+    vault: Vault;
+    section: Section;
+    problem: Problem;
+    related: RelatedProblem[];
+    linkCandidates: { id: number; title: string }[];
+}>();
+const conversion = useForm({});
 </script>
 <template>
     <Head :title="problem.title" />
@@ -30,6 +50,18 @@ defineProps<{ vault: Vault; section: Section; problem: Problem }>();
         ]"
     >
         <PageHeading :title="problem.title" :description="problem.description">
+            <Button as-child variant="outline"
+                ><Link
+                    :href="
+                        compare({
+                            vault: vault.id,
+                            section: section.id,
+                            problem: problem.id,
+                        })
+                    "
+                    >Compare code</Link
+                ></Button
+            >
             <ProblemDialog
                 :vault="vault"
                 :section="section"
@@ -85,6 +117,105 @@ defineProps<{ vault: Vault; section: Section; problem: Problem }>();
             </p>
         </section>
 
+        <section
+            class="flex min-w-0 flex-col gap-4"
+            aria-labelledby="blocks-heading"
+        >
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="blocks-heading" class="text-xl font-semibold">
+                    Text and code blocks
+                </h2>
+                <ContentBlockDialog
+                    :vault="vault"
+                    :section="section"
+                    :problem="problem"
+                />
+            </div>
+            <p class="text-sm text-muted-foreground">
+                Blocks supplement the original fields. Copying legacy content
+                keeps the original description, solution, and explanation
+                intact.
+            </p>
+            <Button
+                variant="outline"
+                class="self-start"
+                :disabled="conversion.processing"
+                @click="
+                    conversion.post(
+                        convert.url({
+                            vault: vault.id,
+                            section: section.id,
+                            problem: problem.id,
+                        }),
+                        { preserveScroll: true },
+                    )
+                "
+                >{{
+                    conversion.processing
+                        ? 'Copying…'
+                        : 'Copy legacy fields into blocks'
+                }}</Button
+            >
+            <p
+                v-for="(message, key) in conversion.errors"
+                :key="key"
+                role="alert"
+                class="text-sm text-destructive"
+            >
+                {{ message }}
+            </p>
+            <Card v-for="block in problem.blocks" :key="block.id"
+                ><CardHeader
+                    class="flex flex-wrap items-center justify-between gap-3"
+                    ><CardTitle class="text-base"
+                        >Block {{ block.position }} ·
+                        {{ block.type }}</CardTitle
+                    >
+                    <div class="flex gap-2">
+                        <ContentBlockDialog
+                            :vault="vault"
+                            :section="section"
+                            :problem="problem"
+                            :block="block"
+                        /><DeleteDialog
+                            :action="
+                                blockDestroy({
+                                    vault: vault.id,
+                                    section: section.id,
+                                    problem: problem.id,
+                                    block: block.id,
+                                })
+                            "
+                            title="Delete block?"
+                            description="Only this block will be removed. Original legacy fields remain unchanged."
+                        /></div></CardHeader
+                ><CardContent
+                    ><CodeBlock
+                        v-if="block.type === 'code'"
+                        :code="block.content"
+                        :language="
+                            block.language || problem.programming_language
+                        "
+                    />
+                    <p v-else class="wrap-anywhere whitespace-pre-wrap">
+                        {{ block.content }}
+                    </p></CardContent
+                ></Card
+            >
+            <p
+                v-if="!problem.blocks?.length"
+                class="text-sm text-muted-foreground"
+            >
+                No blocks yet.
+            </p>
+        </section>
+        <RelatedProblems
+            :vault="vault"
+            :section="section"
+            :problem="problem"
+            :related="related"
+            :candidates="linkCandidates"
+        />
         <section
             aria-labelledby="attempts-heading"
             class="flex min-w-0 flex-col gap-5"

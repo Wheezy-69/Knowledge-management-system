@@ -18,6 +18,14 @@ import {
 } from '@/components/ui/sidebar';
 import { index } from '@/routes/vaults';
 import { index as problemIndex } from '@/routes/problems';
+import { index as tagIndex } from '@/routes/tags';
+import { index as backupIndex } from '@/routes/backups';
+import { index as graphIndex } from '@/routes/graph';
+const secondaryNavigation = [
+    { label: 'Tags', route: tagIndex() },
+    { label: 'Knowledge graph', route: graphIndex() },
+    { label: 'Backup and restore', route: backupIndex() },
+];
 
 const page = usePage();
 const vaultsActive = computed(() =>
@@ -65,6 +73,26 @@ const { isMobile, setOpenMobile } = useSidebar();
                     <SidebarGroupLabel>Workspace</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
+                            <SidebarMenuItem
+                                v-for="item in secondaryNavigation"
+                                :key="item.label"
+                                ><SidebarMenuButton
+                                    as-child
+                                    :is-active="
+                                        page.url.split('?')[0] ===
+                                        item.route.url
+                                    "
+                                    size="lg"
+                                    ><Link
+                                        :href="item.route"
+                                        prefetch
+                                        @click="setOpenMobile(false)"
+                                        ><LayoutGrid
+                                            aria-hidden="true"
+                                        /><span>{{ item.label }}</span></Link
+                                    ></SidebarMenuButton
+                                ></SidebarMenuItem
+                            >
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     as-child
