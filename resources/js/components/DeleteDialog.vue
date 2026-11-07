@@ -11,11 +11,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-defineProps<{
-    action: { url: string; method: 'delete' };
-    title: string;
-    description: string;
-}>();
+withDefaults(
+    defineProps<{
+        action: { url: string; method: 'delete' };
+        title: string;
+        description: string;
+        label?: string;
+        confirmLabel?: string;
+        irreversible?: boolean;
+    }>(),
+    { label: 'Delete', confirmLabel: 'Delete permanently', irreversible: true },
+);
 const open = ref(false);
 const form = useForm({});
 function changeOpen(value: boolean) {
@@ -33,13 +39,18 @@ function submit(url: string) {
 <template>
     <Dialog :open="open" @update:open="changeOpen">
         <DialogTrigger as-child
-            ><Button variant="outline" size="sm">Delete</Button></DialogTrigger
+            ><Button variant="outline" size="sm">{{
+                label
+            }}</Button></DialogTrigger
         >
         <DialogContent>
             <DialogHeader
                 ><DialogTitle>{{ title }}</DialogTitle
                 ><DialogDescription
-                    >{{ description }} This cannot be undone.</DialogDescription
+                    >{{ description }}
+                    {{
+                        irreversible ? 'This cannot be undone.' : ''
+                    }}</DialogDescription
                 ></DialogHeader
             >
             <DialogFooter>
@@ -53,9 +64,7 @@ function submit(url: string) {
                     variant="destructive"
                     :disabled="form.processing"
                     @click="submit(action.url)"
-                    >{{
-                        form.processing ? 'Deleting…' : 'Delete permanently'
-                    }}</Button
+                    >{{ form.processing ? 'Working…' : confirmLabel }}</Button
                 >
             </DialogFooter>
         </DialogContent>
