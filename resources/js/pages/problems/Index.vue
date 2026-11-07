@@ -7,9 +7,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { index } from '@/routes/problems';
 import { index as vaultIndex } from '@/routes/vaults';
 import type { ProblemSummary, Paginated } from '@/types/knowledge';
+import type { SearchFilters, FilterOptions } from '@/types/knowledge';
 defineProps<{
     problems: Paginated<ProblemSummary>;
-    filters: { search: string };
+    filters: SearchFilters;
+    filterOptions: FilterOptions;
 }>();
 </script>
 <template>
@@ -23,6 +25,8 @@ defineProps<{
             ></PageHeading
         >
         <ProblemList
+            :filters="filters"
+            :filter-options="filterOptions"
             :problems="problems"
             :search="filters.search"
             :action="index.url()"

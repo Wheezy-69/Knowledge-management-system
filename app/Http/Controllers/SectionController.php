@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProblemSearchRequest;
 use App\Http\Requests\SectionRequest;
+use App\Models\Problem;
 use App\Models\Section;
 use App\Models\Vault;
+use App\Services\ProblemSearch;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,21 +21,15 @@ class SectionController extends Controller
         return to_route('vaults.sections.show', [$vault, $section])->with('success', 'Section created.');
     }
 
-    public function show(Request $request, Vault $vault, Section $section): Response
+    public function show(ProblemSearchRequest $request, Vault $vault, Section $section, ProblemSearch $search): Response
     {
-        $filters = $request->validate(['search' => ['nullable', 'string', 'max:200']]);
-        $search = trim($filters['search'] ?? '');
+        $filters = $search->filters($request->validated());
+        $filters['search'] = trim($filters['search'] ?? '');
 
         return Inertia::render('sections/Show', [
-            'vault' => $vault,
-            'section' => $section,
-            'filters' => ['search' => $search],
-            'problems' => $section->problems()
-                ->select(['id', 'section_id', 'title', 'description', 'programming_language', 'tags', 'updated_at'])
-                ->withCount('attempts')
-                ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query
-                    ->whereLike('title', '%'.$search.'%')->orWhereLike('description', '%'.$search.'%')))
-                ->latest('updated_at')->paginate(15)->withQueryString(),
+            'vault' => $vault, 'section' => $section, 'filters' => $filters,
+            'filterOptions' => $search->options(),
+            'problems' => $search->results(Problem::query()->where('section_id', $section->id), $filters),
         ]);
     }
 

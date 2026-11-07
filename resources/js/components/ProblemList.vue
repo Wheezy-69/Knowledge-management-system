@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { Link, useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import SearchFiltersForm from '@/components/SearchFiltersForm.vue';
 import EmptyState from '@/components/EmptyState.vue';
 import PaginationLinks from '@/components/PaginationLinks.vue';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     Card,
     CardHeader,
@@ -24,25 +22,12 @@ import type {
 const props = defineProps<{
     problems: Paginated<ProblemSummary>;
     search: string;
+    filters: import('@/types/knowledge').SearchFilters;
+    filterOptions: import('@/types/knowledge').FilterOptions;
     action: string;
     vault?: Vault;
     section?: Section;
 }>();
-const form = useForm({ search: props.search });
-watch(
-    () => props.search,
-    (value) => {
-        form.search = value;
-    },
-);
-function submit() {
-    form.get(props.action, {
-        preserveState: true,
-        preserveScroll: true,
-        replace: true,
-        only: ['problems', 'filters'],
-    });
-}
 function href(problem: ProblemSummary) {
     const section = problem.section ?? props.section;
     const vault = section?.vault ?? props.vault;
@@ -57,47 +42,12 @@ function href(problem: ProblemSummary) {
 </script>
 <template>
     <div class="flex flex-col gap-5">
-        <form
-            class="flex flex-wrap gap-2"
-            role="search"
-            @submit.prevent="submit"
-        >
-            <label for="problem-search" class="sr-only"
-                >Search problem titles and descriptions</label
-            >
-            <Input
-                id="problem-search"
-                v-model="form.search"
-                type="search"
-                maxlength="200"
-                placeholder="Search titles and descriptions…"
-                class="min-w-48 flex-1"
-                :aria-invalid="!!form.errors.search"
-                aria-describedby="search-error"
-            />
-            <Button :disabled="form.processing">{{
-                form.processing ? 'Searching…' : 'Search'
-            }}</Button>
-            <Button
-                v-if="search || form.search"
-                type="button"
-                variant="outline"
-                :disabled="form.processing"
-                @click="
-                    form.search = '';
-                    submit();
-                "
-                >Clear</Button
-            >
-            <p
-                v-if="form.errors.search"
-                id="search-error"
-                role="alert"
-                class="w-full text-sm text-destructive"
-            >
-                {{ form.errors.search }}
-            </p>
-        </form>
+        <SearchFiltersForm
+            :filters="filters"
+            :options="filterOptions"
+            :action="action"
+            :scoped="!!section"
+        />
         <p class="text-sm text-muted-foreground" aria-live="polite">
             {{ problems.total }}
             {{ problems.total === 1 ? 'problem' : 'problems'
@@ -128,7 +78,12 @@ function href(problem: ProblemSummary) {
                         <CardDescription
                             class="line-clamp-2 wrap-anywhere whitespace-pre-wrap"
                             >{{
-                                problem.description || 'No description yet.'
+                                problem.preview
+                                    ? problem.preview.field +
+                                      ': ' +
+                                      problem.preview.text
+                                    : problem.description ||
+                                      'No description yet.'
                             }}</CardDescription
                         >
                         <div

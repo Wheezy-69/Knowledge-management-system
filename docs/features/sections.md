@@ -17,7 +17,7 @@ The vault detail page opens `CollectionDialog` in section mode. Inertia sends PO
 
 ## 4. Controller, model, and database
 
-`$vault->sections()->create(...)` supplies vault_id from the bound parent, never client input. `Section::problems()` provides the scoped problem query. Sections list by name and include problem counts. Deletion removes the section and cascades to its problems and attempts, then redirects to the surviving vault.
+`$vault->sections()->create(...)` supplies vault_id from the bound parent, never client input. Section detail passes a problem query constrained by the bound section ID to `ProblemSearch`, which applies search, filters, and pagination. Sections list by name and include problem counts. Deletion removes the section and cascades to its problems and attempts, then redirects to the surviving vault.
 
 ## 5. Validation and errors
 

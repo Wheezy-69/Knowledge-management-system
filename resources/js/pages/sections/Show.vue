@@ -14,11 +14,13 @@ import type {
     ProblemSummary,
     Paginated,
 } from '@/types/knowledge';
+import type { SearchFilters, FilterOptions } from '@/types/knowledge';
 defineProps<{
     vault: Vault;
     section: Section;
     problems: Paginated<ProblemSummary>;
-    filters: { search: string };
+    filters: SearchFilters;
+    filterOptions: FilterOptions;
 }>();
 </script>
 <template>
@@ -44,6 +46,8 @@ defineProps<{
             <ProblemDialog :vault="vault" :section="section" />
         </PageHeading>
         <ProblemList
+            :filters="filters"
+            :filter-options="filterOptions"
             :problems="problems"
             :search="filters.search"
             :action="show.url({ vault: vault.id, section: section.id })"
