@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttemptController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ComparisonController;
 use App\Http\Controllers\ProblemController;
 use App\Http\Controllers\RelatedProblemController;
 use App\Http\Controllers\SectionController;
@@ -18,6 +19,7 @@ Route::get('backups/export', [BackupController::class, 'export'])->name('backups
 Route::post('backups', [BackupController::class, 'store'])->name('backups.store');
 
 Route::scopeBindings()->group(function (): void {
+    Route::get('vaults/{vault}/sections/{section}/problems/{problem}/compare', [ComparisonController::class, 'show'])->name('vaults.sections.problems.compare');
     Route::post('vaults/{vault}/sections/{section}/problems/{problem}/related', [RelatedProblemController::class, 'store'])->name('vaults.sections.problems.related.store');
     Route::delete('vaults/{vault}/sections/{section}/problems/{problem}/related/{related}', [RelatedProblemController::class, 'destroy'])->whereNumber('related')->name('vaults.sections.problems.related.destroy');
     Route::get('vaults/{vault}/cover', [VaultController::class, 'cover'])->name('vaults.cover');
