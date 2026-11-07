@@ -73,3 +73,12 @@ assets, stop Vite intentionally, ensure its hot-file lifecycle is correct, and
 use the production build. Do not confuse development compilation timings with
 production performance. Debug settings and running services were left intact.
 No real notebook records or database schema were changed.
+
+## Expansion note
+
+The expanded search can read detail text internally to construct a bounded preview,
+but hides solutions/explanations and matched raw snippets before serialization.
+The earlier measurements above are historical, not a benchmark of the new filters.
+No text indexes were added because leading-wildcard LIKE queries do not benefit
+from a normal title B-tree. Pivot/reverse-link indexes serve actual relationship
+lookups. Comparison and graph rendering have explicit work limits.

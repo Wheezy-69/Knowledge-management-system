@@ -12,13 +12,14 @@
 - `resources/js/components/ui`: project-owned shadcn-vue primitives.
 - `resources/js/types/knowledge.ts`: frontend contracts for records and pagination.
 
-There is no separate JSON API, frontend state store, repository layer, or service
-container abstraction. The database is the source of truth. Inertia supplies each
+There is no separate JSON API, frontend state store, or repository layer.
+Small services centralize portable backups, tag synchronization, and shared search. The database is the source of truth. Inertia supplies each
 page with server-side props. Records are paginated; counts and global-search
 relationships are loaded with Eloquent to avoid per-record queries.
 
-Problem lists select summary fields rather than loading corrected solutions and
-explanations. The frontend uses `ProblemSummary` for these responses and `Problem`
+Problem lists serialize summary fields rather than full corrected solutions and
+explanations. Expanded search may read those fields internally to create bounded
+previews, then hides the source fields before sending the response. The frontend uses `ProblemSummary` for these responses and `Problem`
 for detail pages. Global results load only the IDs/names needed for ancestry.
 Primary navigation links prefetch on hover using Inertia's existing cache.
 The app bootstrap clears that cache after mutations finish to keep lists fresh.
@@ -86,3 +87,21 @@ upload can leave an orphaned file.
 There is no authentication in this starter. Validation requests deliberately allow
 the local workspace. Scoped binding and guarded fillable fields protect hierarchy,
 but do not provide multi-user isolation. See the overview before hosting.
+
+## Expansion boundaries
+
+`ProblemSearch` shares grouped content queries, normalized filters, and metadata
+between global and section pages. `ProblemTags` keeps the JSON compatibility field
+and normalized pivot consistent; tag renames/deletions use transactions.
+`KnowledgeBackup` validates the complete archive, remaps IDs, and coordinates DB
+rollback with cleanup of newly written attachments. Its portable format exports
+knowledge tables only, not accounts, credentials, sessions, or environment files.
+
+Additional Inertia pages are Tags, Backup and restore, Compare, and Graph.
+Content blocks and related links remain scoped nested mutations on problem detail.
+Legacy conversion copies fields; it does not replace them. Comparison is computed
+in the browser and does not write data. Graph data is derived and bounded.
+
+The app remains single-user with no authentication, policies, or tenant ownership.
+Scoped binding is hierarchy integrity rather than user authorization. AI provider
+integration is deliberately absent pending a separate data-sharing decision.

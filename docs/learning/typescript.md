@@ -570,31 +570,40 @@ TypeScript documents/checks that connection but does not submit the request.
 
 ## 15. Async functions and Promise return types
 
-From [CodeBlock.vue](../../resources/js/components/CodeBlock.vue):
+The clipboard helper in [lib/clipboard.ts](../../resources/js/lib/clipboard.ts)
+now makes its result explicit:
 
 ```ts
-async function copy() {
+export async function copyText(
+    text: string,
+    clipboard: Pick<Clipboard, 'writeText'> | undefined = typeof navigator ===
+    'undefined'
+        ? undefined
+        : navigator.clipboard,
+): Promise<boolean> {
+    if (!clipboard) return false;
     try {
-        await navigator.clipboard.writeText(props.code);
-        copyState.value = 'Copied';
+        await clipboard.writeText(text);
+        return true;
     } catch {
-        copyState.value = 'Select code to copy';
+        return false;
     }
 }
 ```
 
-A Promise represents an operation that finishes later. An async function always
-returns one. TypeScript infers `Promise<void>` here because the clipboard work
-is asynchronous but the function does not return a result value.
-That return annotation is inferred, not written in the project.
+A Promise represents a result available later. This helper returns true only after
+the original source is successfully written. Pick selects the one browser method
+it needs, which also lets tests provide a small fake writer. Undefined handles
+environments without that API. The default parameter is ordinary JavaScript;
+the parameter annotations, Pick expression, and Promise<boolean> are TypeScript.
 
-This function is already valid JavaScript without changes. Vue calls it from
-the Copy button. The browser handles clipboard access; Inertia is not involved.
-The catch block supplies feedback when clipboard access fails.
+The JavaScript equivalent removes those annotations but keeps the body and default
+expression. CodeBlock awaits the result, displays Copied on success, or selects
+the code and requests manual copying. Vue handles that selection state; Inertia
+is not involved because copying makes no Laravel request.
 
-The same asynchronous principle appears in the highlighting tests, where
-`await test(...)` handles Node's test Promise. The lint check warns about
-unhandled Promises, helping prevent accidentally ignored work or failures.
+Node tests also await test(...), whose result is a Promise. The lint check catches
+accidentally unhandled Promises.
 
 ## 16. Declaration files and compiler checks
 
@@ -664,3 +673,25 @@ TypeScript syntax, update this guide in the same change:
 
 This is a maintained learning document, not an automatically generated API
 reference. Do not document a proposed type as if the application already uses it.
+
+## Types added by the expansion
+
+`SearchFilters` and `FilterOptions` describe shared filter state and server-provided
+choices. SearchFiltersForm initializes a generic Inertia form from those props;
+server normalization ensures query-string IDs become numbers for checkboxes.
+
+`ContentBlock` uses the literal union `'text' | 'code'` so the editor can select
+known block types. RelatedProblem contains the ancestry needed for target URLs.
+`Problem.blocks?: ContentBlock[]` is optional because lists do not load full blocks.
+The added `ProblemSummary.preview?: { field: string; text: string }` is similarly
+optional: it appears only when a search produces a useful matching preview.
+
+In `lib/diff.ts`, DiffRow uses nullable left/right strings because an added line
+has no original-side text and a removed line has no comparison-side text. The
+kind union is `'equal' | 'remove' | 'add'`. Comparison returns rows plus a boolean
+limited flag. These declarations disappear from JavaScript; null values and the
+algorithm's limits remain real runtime behavior.
+
+Graph.vue defines a local Node interface with a `'problem' | 'tag'` type and a
+navigation URL. Vue uses that type to render the two groups; Laravel supplies
+actual graph records. This local name does not create DOM Node objects.
